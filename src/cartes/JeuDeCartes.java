@@ -1,7 +1,7 @@
 package cartes;
 
 public class JeuDeCartes {
-	private Configuration[] configurations = new Configuration[] {
+	private Configuration[] configurations = {
 			new Configuration(new Borne(25), 10),
 			new Configuration(new Borne(50), 10),
 			new Configuration(new Borne(75), 10),

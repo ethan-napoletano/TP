@@ -61,7 +61,6 @@ public class Sabot implements Iterable<Carte> {
 
 		@Override
 		public boolean hasNext() {
-			concurrentModification();
 			return position < nbCartes;
 		}
 
