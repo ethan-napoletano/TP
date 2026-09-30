@@ -1,0 +1,108 @@
+package jeu;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.ConcurrentModificationException;
+import cartes.Carte;
+
+public class Sabot implements Iterable<Carte> {
+
+	private Carte[] cartes;
+	private int nbCartes;
+	private int nbOp = 0;
+
+	public Sabot(Carte[] cartes) {
+		this.cartes = cartes;
+		this.nbCartes = cartes.length;
+	}
+
+	public boolean estVide() {
+		return nbCartes == 0;
+	}
+
+	public void ajouterCarte(Carte carte) {
+		if (nbCartes >= cartes.length) {
+			throw new RuntimeException("Trop de cartes dans le sabot");
+		}
+		cartes[nbCartes] = carte;
+		nbCartes++;
+		nbOp++;
+	}
+
+	@Override
+	public Iterator<Carte> iterator() {
+		return new SabotIterator();
+	}
+	
+	public Carte piocher() {
+	    if (estVide()) {
+	        return null;
+	    }
+
+	    Carte carte = cartes[0];
+
+	    for (int i = 0; i < nbCartes - 1; i++) {
+	        cartes[i] = cartes[i + 1];
+	    }
+
+	    nbCartes--;
+	    nbOp++;
+
+	    return carte;
+	}
+
+//classe interne//
+
+	private class SabotIterator implements Iterator<Carte> {
+
+		private int position = 0;
+		private boolean canRemove = false;
+		private int exNbOp = nbOp;
+
+		@Override
+		public boolean hasNext() {
+			concurrentModification();
+			return position < nbCartes;
+		}
+
+		@Override
+		public Carte next() {
+			concurrentModification();
+			
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			canRemove = true;
+			return cartes[position++];
+		}
+
+		@Override
+		public void remove() {
+
+			concurrentModification();
+			
+			if (!canRemove) {
+				throw new IllegalStateException("remove apres le next");
+			}
+
+			for (int i = position - 1; i < nbCartes - 1; i++) {
+				cartes[i] = cartes[i + 1];
+			}
+			
+			nbCartes--;
+			position--;
+			nbOp++;
+			exNbOp = nbOp;
+			canRemove = false;
+		}
+
+		private void concurrentModification() {
+			if (nbOp != exNbOp) {
+				throw new ConcurrentModificationException();
+			}
+		}
+	}
+
+
+
+}
